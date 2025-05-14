@@ -1,32 +1,48 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <title>사다리 예측기</title>
+    <meta charset="UTF-8">
+    <title>사다리 예측</title>
 </head>
 <body>
-  <h1>🔮 예측 실행</h1>
-  <button onclick="predict()">예측 실행</button>
+    <h1>🔮 예측 실행</h1>
+    <button onclick="runPrediction()">예측 실행</button>
+    <p id="predict-round"></p>
+    <p id="result-1"></p>
+    <p id="result-2"></p>
+    <p id="result-3"></p>
+    <p id="error-message" style="color: red;"></p>
 
-  <p id="round"></p>
-  <p id="result1"></p>
-  <p id="result2"></p>
-  <p id="result3"></p>
+    <script>
+        async function runPrediction() {
+            const result1 = document.getElementById("result-1");
+            const result2 = document.getElementById("result-2");
+            const result3 = document.getElementById("result-3");
+            const round = document.getElementById("predict-round");
+            const errorMsg = document.getElementById("error-message");
 
-  <script>
-    async function predict() {
-      try {
-        const response = await fetch("https://ladder-proxy-production.up.railway.app/recent-result");
-        const data = await response.json();
+            result1.textContent = "";
+            result2.textContent = "";
+            result3.textContent = "";
+            round.textContent = "";
+            errorMsg.textContent = "";
 
-        document.getElementById("round").innerText = `예측 회차: ${data.predict_round}회차`;
-        document.getElementById("result1").innerText = `1위: ${data.predictions[0]}`;
-        document.getElementById("result2").innerText = `2위: ${data.predictions[1]}`;
-        document.getElementById("result3").innerText = `3위: ${data.predictions[2]}`;
-      } catch (error) {
-        document.getElementById("round").innerText = "오류 발생: " + error;
-      }
-    }
-  </script>
+            try {
+                const response = await fetch("https://ladder-proxy-production.up.railway.app/recent-result");
+                const data = await response.json();
+
+                if (!data || !data.result || data.result.length < 3) {
+                    throw new Error("예측 데이터가 부족합니다.");
+                }
+
+                round.textContent = `예측 회차: ${data.predict_round}회차`;
+                result1.textContent = `1위: ${data.result[0]}`;
+                result2.textContent = `2위: ${data.result[1]}`;
+                result3.textContent = `3위: ${data.result[2]}`;
+            } catch (error) {
+                errorMsg.textContent = `오류 발생: ${error}`;
+            }
+        }
+    </script>
 </body>
 </html>
