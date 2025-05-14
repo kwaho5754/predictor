@@ -41,7 +41,7 @@
         const data = await response.json();
 
         const round = data?.predict_round;
-        const results = data?.results;
+        const results = data?.top3_patterns;
 
         if (!Array.isArray(results) || results.length === 0 || !round) {
           resultDiv.innerHTML = "❌ 예측 데이터를 불러올 수 없습니다.";
