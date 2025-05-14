@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>사다리 예측기</title>
+  <style>
+    body {{ font-family: sans-serif; text-align: center; padding: 2em; }}
+    button {{ font-size: 1.2em; padding: 0.5em 1em; }}
+    #result {{ margin-top: 2em; font-size: 1.4em; white-space: pre-line; }}
+  </style>
+</head>
+<body>
+  <h1>🔮 예측 실행</h1>
+  <button onclick="predict()">예측 실행</button>
+  <div id="result"></div>
+
+  <script>
+    async function predict() {{
+      const res = await fetch("https://ladder-proxy-production.up.railway.app/recent-result");
+      const data = await res.json();
+
+      // 3~5줄 패턴 기준으로 가장 많은 블럭 추출 (예시: 단순 line_count 패턴 빈도)
+      const patternMap = {{}};
+      for (let i = 0; i < data.length - 2; i++) {{
+        let key = data.slice(i, i+3).map(d => d.start_point + d.line_count + d.odd_even).join("|");
+        patternMap[key] = (patternMap[key] || 0) + 1;
+      }}
+
+      const sorted = Object.entries(patternMap).sort((a,b)=>b[1]-a[1]);
+      const top3 = sorted.slice(0,3).map((item, i) => `TOP${i+1}: ${item[0]}\n`);
+
+      document.getElementById("result").innerText = top3.join("");
+    }}
+  </script>
+</body>
+</html>
