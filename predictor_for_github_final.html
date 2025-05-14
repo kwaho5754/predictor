@@ -4,29 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>사다리 예측기</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 2rem;
-    }
-    h1 {
-      font-size: 2rem;
-    }
-    button {
-      padding: 1rem;
-      font-size: 1rem;
-    }
-    .result {
-      margin-top: 2rem;
-      font-size: 1.25rem;
-    }
-  </style>
 </head>
 <body>
   <h1>🔮 예측 실행</h1>
   <button onclick="predict()">예측 실행</button>
-  <div class="result" id="result"></div>
+  <div id="result"></div>
 
   <script>
     async function predict() {
@@ -36,13 +18,12 @@
         const response = await fetch("https://ladder-proxy-production.up.railway.app/recent-result");
         const data = await response.json();
         if (data && data.predictions) {
-          const formatted = data.predictions.map((p, i) => `${i + 1}위: ${p}`).join("<br>");
-          resultDiv.innerHTML = `<strong>예측 결과:</strong><br>${formatted}`;
+          resultDiv.innerHTML = data.predictions.map((p, i) => `${i + 1}위: ${p}`).join("<br>");
         } else {
-          resultDiv.innerHTML = "예측 결과를 불러오지 못했습니다.";
+          resultDiv.innerHTML = "예측 결과 없음";
         }
-      } catch (err) {
-        resultDiv.innerHTML = "서버 연결 실패 😢<br>" + err;
+      } catch (error) {
+        resultDiv.innerHTML = "오류 발생: " + error;
       }
     }
   </script>
