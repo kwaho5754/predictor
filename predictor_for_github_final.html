@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>사다리 예측기</title>
 </head>
 <body>
   <h1>🔮 예측 실행</h1>
   <button onclick="predict()">예측 실행</button>
-  <div id="result"></div>
+
+  <p id="round"></p>
+  <p id="result1"></p>
+  <p id="result2"></p>
+  <p id="result3"></p>
 
   <script>
     async function predict() {
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "예측 중...";
       try {
         const response = await fetch("https://ladder-proxy-production.up.railway.app/recent-result");
         const data = await response.json();
-        if (data && data.predictions) {
-          resultDiv.innerHTML = data.predictions.map((p, i) => `${i + 1}위: ${p}`).join("<br>");
-        } else {
-          resultDiv.innerHTML = "예측 결과 없음";
-        }
+
+        document.getElementById("round").innerText = `예측 회차: ${data.predict_round}회차`;
+        document.getElementById("result1").innerText = `1위: ${data.predictions[0]}`;
+        document.getElementById("result2").innerText = `2위: ${data.predictions[1]}`;
+        document.getElementById("result3").innerText = `3위: ${data.predictions[2]}`;
       } catch (error) {
-        resultDiv.innerHTML = "오류 발생: " + error;
+        document.getElementById("round").innerText = "오류 발생: " + error;
       }
     }
   </script>
