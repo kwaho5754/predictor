@@ -34,15 +34,19 @@
       resultDiv.innerHTML = "🔄 예측 중입니다...";
 
       try {
-        const res = await fetch("https://ladder-proxy-production.up.railway.app/recent-result");
+        const res = await fetch("https://ladder-proxy-production.up.railway.app/predict");
         if (!res.ok) throw new Error("서버 응답 오류");
 
         const data = await res.json();
 
         const predictRound = data.predict_round || "알 수 없음";
         const top3 = data.top3_patterns.map((pattern, i) => `${i + 1}위: ${pattern}`).join("<br>");
+        const combo = data.combo_suggestion || "없음";
 
-        resultDiv.innerHTML = `예측 회차: ${predictRound}회차<br>${top3}`;
+        resultDiv.innerHTML = `
+          예측 회차: ${predictRound}회차<br>${top3}<br><br>
+          <strong>📘 균형 조합 기반 추천: ${combo}</strong>
+        `;
       } catch (err) {
         resultDiv.innerHTML = `❌ 예측 데이터 보기 오류:<br>${err.message}`;
       }
