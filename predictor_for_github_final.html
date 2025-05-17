@@ -31,28 +31,37 @@
 
   <script>
     async function fetchPrediction() {
-      const response = await fetch("https://ladder-proxy-production.up.railway.app/predict");
-      const data = await response.json();
+      try {
+        const response = await fetch("https://ladder-proxy-production.up.railway.app/predict");
+        const data = await response.json();
 
-      document.getElementById("round").innerText = `예측 회차: ${data.predict_round}회차`;
+        document.getElementById("round").innerText = `예측 회차: ${data.predict_round}회차`;
 
-      const leftContainer = document.getElementById("left");
-      const rightContainer = document.getElementById("right");
-      leftContainer.innerHTML = "";
-      rightContainer.innerHTML = "";
+        const leftContainer = document.getElementById("left");
+        const rightContainer = document.getElementById("right");
+        leftContainer.innerHTML = "";
+        rightContainer.innerHTML = "";
 
-      for (let i = 0; i < 5; i++) {
-        const el = document.createElement("div");
-        el.className = "result";
-        el.innerText = `${i + 1}위: ${data.top10_predictions[i]}`;
-        leftContainer.appendChild(el);
-      }
+        // 앞 기준: front_predictions
+        data.front_predictions.forEach((value, i) => {
+          const el = document.createElement("div");
+          el.className = "result";
+          el.innerText = `${i + 1}위: ${value}`;
+          leftContainer.appendChild(el);
+        });
 
-      for (let i = 5; i < 10; i++) {
-        const el = document.createElement("div");
-        el.className = "result";
-        el.innerText = `${i + 1}위: ${data.top10_predictions[i]}`;
-        rightContainer.appendChild(el);
+        // 뒤 기준: back_predictions
+        data.back_predictions.forEach((value, i) => {
+          const el = document.createElement("div");
+          el.className = "result";
+          el.innerText = `${i + 6}위: ${value}`;
+          rightContainer.appendChild(el);
+        });
+
+      } catch (err) {
+        document.getElementById("round").innerText = "❌ 예측 데이터 보기 오류";
+        document.getElementById("left").innerText = "";
+        document.getElementById("right").innerText = "";
       }
     }
   </script>
