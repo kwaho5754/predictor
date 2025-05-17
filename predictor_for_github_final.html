@@ -2,64 +2,56 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>사다리 예측 시스템</title>
+  <title>🥭 사다리 예측 시스템</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 30px;
     }
-    .container {
-      display: flex;
-      justify-content: space-between;
-    }
-    .section {
-      width: 45%;
-    }
     h1 {
-      font-size: 28px;
+      font-size: 24px;
+      margin-bottom: 10px;
     }
-    .bold {
+    #round {
+      margin: 10px 0;
       font-weight: bold;
     }
-    ul {
-      padding-left: 20px;
+    #front {
+      margin-top: 20px;
+    }
+    .result {
+      margin: 4px 0;
     }
   </style>
-</head>
-<body>
-  <h1>🍑 예측 실행</h1>
-  <button onclick="fetchPrediction()">예측 실행</button>
-  <p>📅 <span id="round">예측 회차 불러오는 중...</span></p>
-
-  <div class="container">
-    <div class="section">
-      <p class="bold">앞 기준 (Top1~5)</p>
-      <ul id="forward"></ul>
-    </div>
-    <div class="section">
-      <p class="bold">뒤 기준 (Top6~10)</p>
-      <ul id="backward"></ul>
-    </div>
-  </div>
-
   <script>
-    async function fetchPrediction() {
-      document.getElementById("forward").innerHTML = "<li>⏳ 데이터 불러오는 중...</li>";
-      document.getElementById("backward").innerHTML = "<li>⏳ 데이터 불러오는 중...</li>";
+    async function predict() {
       const res = await fetch("https://ladder-proxy-production.up.railway.app/predict");
       const data = await res.json();
 
-      document.getElementById("round").innerText = `${data.예측회차}회차`;
+      document.getElementById("round").innerText = `📅 예측 회차: ${data.예측회차}회차`;
 
-      const forwardList = data.앞방향_예측값.map((item, idx) => `<li>${idx + 1}위: ${item}</li>`).join("\n");
-      const backwardList = data.뒤방향_예측값.map((item, idx) => `<li>${6 + idx}위: ${item}</li>`).join("\n");
+      const container = document.getElementById("front");
+      container.innerHTML = "";
 
-      document.getElementById("forward").innerHTML = forwardList || "<li>❌ 데이터 없음</li>";
-      document.getElementById("backward").innerHTML = backwardList || "<li>❌ 데이터 없음</li>";
+      if (Array.isArray(data.앞기준_예측값)) {
+        data.앞기준_예측값.forEach((val, idx) => {
+          const div = document.createElement("div");
+          div.className = "result";
+          div.innerText = `${idx + 1}위: ${val}`;
+          container.appendChild(div);
+        });
+      } else {
+        container.innerHTML = "<div>❌ 데이터 없음</div>";
+      }
     }
 
-    // 첫 로딩 시 자동 실행
-    fetchPrediction();
+    window.addEventListener("DOMContentLoaded", predict);
   </script>
+</head>
+<body>
+  <h1>🥭 예측 실행</h1>
+  <div id="round">⏳ 예측 회차 불러오는 중...</div>
+  <h2>앞 기준 Top 5</h2>
+  <div id="front">⏳ 예측 결과 불러오는 중...</div>
 </body>
 </html>
