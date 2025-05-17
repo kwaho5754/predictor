@@ -4,24 +4,22 @@
   <meta charset="UTF-8">
   <title>🍑 예측 실행</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
+    body { font-family: Arial; padding: 20px; }
     .container { display: flex; justify-content: space-between; }
     .column { width: 45%; }
     .title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-    .result { margin-bottom: 8px; }
+    .result { margin: 5px 0; }
     .round { font-weight: bold; margin-top: 20px; }
-    .error { color: red; font-weight: bold; }
   </style>
 </head>
 <body>
   <h1>🍑 예측 실행</h1>
   <button onclick="fetchPrediction()">예측 실행</button>
 
-  <div class="round" id="round"></div>
-
+  <div class="round" id="round">🔁 예측 회차 없음</div>
   <div class="container">
     <div class="column">
-      <div class="title">❌ 앞 기준 (Top1~5)</div>
+      <div class="title">앞 기준 (Top1~5)</div>
       <div id="left">❌ 오류</div>
     </div>
     <div class="column">
@@ -39,14 +37,13 @@
 
         const text = await response.text();
         const data = JSON.parse(text);
+        console.log("✅ JSON 파싱 결과:", data);
 
-        document.getElementById("round").innerText = data.predict_round
-          ? `? 예측 회차: ${data.predict_round}회차`
-          : '? 예측 회차 없음';
+        document.getElementById("round").innerText =
+          data.predict_round ? `🔁 예측 회차: ${data.predict_round}회차` : "❌ 예측 회차 없음";
 
         const leftContainer = document.getElementById("left");
         const rightContainer = document.getElementById("right");
-
         leftContainer.innerHTML = "";
         rightContainer.innerHTML = "";
 
@@ -58,7 +55,7 @@
             leftContainer.appendChild(el);
           });
         } else {
-          leftContainer.innerText = "❌ 오류";
+          leftContainer.innerText = "❌ 데이터 없음";
         }
 
         if (Array.isArray(data.back_predictions) && data.back_predictions.length > 0) {
@@ -69,9 +66,11 @@
             rightContainer.appendChild(el);
           });
         } else {
-          rightContainer.innerText = "❌ 오류";
+          rightContainer.innerText = "❌ 데이터 없음";
         }
+
       } catch (error) {
+        console.error("❌ 예측 불러오기 실패:", error);
         document.getElementById("round").innerText = "❌ 예측 결과 로드 실패";
         document.getElementById("left").innerText = "❌ 오류";
         document.getElementById("right").innerText = "❌ 오류";
