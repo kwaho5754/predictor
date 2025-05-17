@@ -42,7 +42,6 @@
         leftContainer.innerHTML = "";
         rightContainer.innerHTML = "";
 
-        // 앞 기준: front_predictions
         data.front_predictions.forEach((value, i) => {
           const el = document.createElement("div");
           el.className = "result";
@@ -50,7 +49,6 @@
           leftContainer.appendChild(el);
         });
 
-        // 뒤 기준: back_predictions
         data.back_predictions.forEach((value, i) => {
           const el = document.createElement("div");
           el.className = "result";
@@ -60,8 +58,8 @@
 
       } catch (err) {
         document.getElementById("round").innerText = "❌ 예측 데이터 보기 오류";
-        document.getElementById("left").innerText = "";
-        document.getElementById("right").innerText = "";
+        document.getElementById("left").innerText = "데이터 없음";
+        document.getElementById("right").innerText = "데이터 없음";
       }
     }
   </script>
