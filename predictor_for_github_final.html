@@ -4,13 +4,33 @@
   <meta charset="UTF-8" />
   <title>🍑 예측 실행</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .container { display: flex; justify-content: space-between; }
-    .column { width: 45%; }
-    .title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-    .result { margin-bottom: 8px; }
-    .round { font-weight: bold; margin-top: 20px; }
-    .error { color: crimson; font-weight: bold; margin: 10px 0; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      justify-content: space-between;
+    }
+    .column {
+      width: 45%;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .result {
+      margin-bottom: 8px;
+    }
+    .round {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -34,15 +54,13 @@
     async function fetchPrediction() {
       try {
         const response = await fetch("https://ladder-proxy-production.up.railway.app/predict", {
-          headers: { 'Accept': 'application/json' }
+          headers: { "Accept": "application/json" }
         });
-
         const text = await response.text();
         const data = JSON.parse(text);
 
-        document.getElementById("round").innerText = data.predict_round
-          ? `📢 예측 회차: ${data.predict_round}회차`
-          : "예측 회차 없음";
+        document.getElementById("round").innerText =
+          data.predict_round ? `📍 예측 회차: ${data.predict_round}회차` : "예측 회차 없음";
 
         const leftContainer = document.getElementById("left");
         const rightContainer = document.getElementById("right");
@@ -58,7 +76,7 @@
             leftContainer.appendChild(el);
           });
         } else {
-          leftContainer.innerHTML = '<div class="error">❌ 오류</div>';
+          leftContainer.innerHTML = "<div class='error'>❌ 오류</div>";
         }
 
         if (Array.isArray(data.back_predictions)) {
@@ -69,14 +87,14 @@
             rightContainer.appendChild(el);
           });
         } else {
-          rightContainer.innerHTML = '<div class="error">❌ 오류</div>';
+          rightContainer.innerHTML = "<div class='error'>❌ 오류</div>";
         }
 
-      } catch (error) {
-        console.error("예측 결과 로드 실패", error);
+      } catch (err) {
         document.getElementById("round").innerText = "예측 결과 로드 실패";
-        document.getElementById("left").innerHTML = '<div class="error">❌ 오류</div>';
-        document.getElementById("right").innerHTML = '<div class="error">❌ 오류</div>';
+        document.getElementById("left").innerHTML = "<div class='error'>❌ 오류</div>";
+        document.getElementById("right").innerHTML = "<div class='error'>❌ 오류</div>";
+        console.error("예측 오류:", err);
       }
     }
   </script>
