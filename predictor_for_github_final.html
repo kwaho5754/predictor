@@ -1,48 +1,77 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>🍊 예측 실행</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 30px; }
-    h1 { font-size: 2em; }
-    .loading { color: gray; font-style: italic; }
-  </style>
+    <meta charset="UTF-8">
+    <title>🍊 예측 실행</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            padding: 40px;
+        }
+        h1 {
+            font-size: 28px;
+        }
+        .section {
+            margin-top: 20px;
+        }
+        .loading {
+            color: gray;
+        }
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-  <h1>🍊 예측 실행</h1>
-  <p>📂 예측 회차: <span id="round" class="loading">불러오는 중...</span></p>
+    <h1>🍊 예측 실행</h1>
+    <button onclick="fetchPrediction()">예측 실행</button>
 
-  <h2>앞 기준 Top 5</h2>
-  <ul id="forward">
-    <li class="loading">⏳ 데이터 불러오는 중...</li>
-  </ul>
+    <div class="section">
+        <p id="round"><span>📂 예측 회차: </span><span class="loading">불러오는 중...</span></p>
+    </div>
 
-  <script>
-    fetch("https://ladder-proxy-production.up.railway.app/predict")
-      .then(response => response.json())
-      .then(data => {
-        const forwardList = document.getElementById("forward");
-        const roundEl = document.getElementById("round");
-        forwardList.innerHTML = "";
+    <div class="section">
+        <h2>앞 기준 Top 5</h2>
+        <ul id="forward">
+            <li class="loading">⏳ 데이터 불러오는 중...</li>
+        </ul>
+    </div>
 
-        if (data["앞기준 예측값"] && data["앞기준 예측값"].length > 0) {
-          data["앞기준 예측값"].forEach((item, index) => {
-            const li = document.createElement("li");
-            li.textContent = `${index + 1}위: ${item}`;
-            forwardList.appendChild(li);
-          });
-        } else {
-          forwardList.innerHTML = "<li>❌ 데이터 없음</li>";
+    <script>
+        async function fetchPrediction() {
+            const roundElem = document.getElementById('round');
+            const forwardElem = document.getElementById('forward');
+
+            roundElem.innerHTML = '📂 예측 회차: <span class="loading">불러오는 중...</span>';
+            forwardElem.innerHTML = '<li class="loading">⏳ 데이터 불러오는 중...</li>';
+
+            try {
+                const res = await fetch("https://ladder-proxy-production.up.railway.app/predict");
+                const json = await res.json();
+
+                // 회차
+                const round = json["예측회차"];
+                roundElem.innerHTML = '📂 예측 회차: ' + (round ? `${round}회차` : '<span class="error">null회차</span>');
+
+                // 예측값 출력
+                forwardElem.innerHTML = '';
+                if (json["앞기준 예측값"] && json["앞기준 예측값"].length > 0) {
+                    json["앞기준 예측값"].forEach((item, idx) => {
+                        forwardElem.innerHTML += `<li>${idx + 1}위: ${item}</li>`;
+                    });
+                } else {
+                    forwardElem.innerHTML = '<li class="error">❌ 예측 데이터 없음</li>';
+                }
+
+            } catch (error) {
+                roundElem.innerHTML = '<span class="error">❌ 예측 실패</span>';
+                forwardElem.innerHTML = '<li class="error">❌ 네트워크 오류</li>';
+                console.error("예측 오류:", error);
+            }
         }
 
-        roundEl.textContent = data["예측회차"] ? `${data["예측회차"]}회차` : "불러오기 실패";
-      })
-      .catch(err => {
-        document.getElementById("forward").innerHTML = "<li>❌ 예측 실패</li>";
-        document.getElementById("round").textContent = "에러 발생";
-        console.error(err);
-      });
-  </script>
+        // 자동 실행
+        fetchPrediction();
+    </script>
 </body>
 </html>
