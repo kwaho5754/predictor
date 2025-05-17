@@ -14,7 +14,6 @@
 </head>
 <body>
   <h1>🍑 예측 실행</h1>
-  <button onclick="fetchPrediction()">예측 실행</button>
 
   <div class="round" id="round">⏳ 예측 회차 불러오는 중...</div>
 
@@ -78,7 +77,7 @@
       }
     }
 
-    // ✅ 자동 실행 추가
+    // 자동 실행
     document.addEventListener('DOMContentLoaded', () => {
       fetchPrediction();
     });
