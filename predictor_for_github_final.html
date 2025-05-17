@@ -4,20 +4,35 @@
   <meta charset="UTF-8">
   <title>🍑 예측 실행</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .container { display: flex; justify-content: space-between; }
-    .column { width: 45%; }
-    .title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-    .result { margin-bottom: 8px; }
-    .round { font-weight: bold; margin-top: 20px; }
-    .error { color: red; font-size: 20px; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .container {
+      display: flex;
+      justify-content: space-between;
+    }
+    .column {
+      width: 45%;
+    }
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .result {
+      margin-bottom: 8px;
+    }
+    .round {
+      font-weight: bold;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
   <h1>🍑 예측 실행</h1>
   <button onclick="fetchPrediction()">예측 실행</button>
-
-  <div class="round" id="round">⏳ 예측 회차 로딩중...</div>
+  <div class="round" id="round"> </div>
 
   <div class="container">
     <div class="column">
@@ -34,24 +49,25 @@
     async function fetchPrediction() {
       try {
         const response = await fetch("https://ladder-proxy-production.up.railway.app/predict", {
-          headers: { 'Accept': 'application/json' }
+          headers: {
+            'Accept': 'application/json'
+          }
         });
 
-        const text = await response.text();
-        console.log("📦 RAW 응답:", text);
+        if (!response.ok) throw new Error(`HTTP 오류: ${response.status}`);
 
-        const data = JSON.parse(text);
+        const data = await response.json();
         console.log("✅ JSON 파싱 결과:", data);
 
-        // 회차 표시
-        const roundDiv = document.getElementById("round");
-        roundDiv.innerText = data.predict_round
-          ? `📢 예측 회차: ${data.predict_round}회차`
-          : "❌ 예측 회차 없음";
+        document.getElementById("round").innerText = data.predict_round
+          ? `예측 회차: ${data.predict_round}회차`
+          : "예측 회차 없음";
 
-        // 왼쪽(앞방향)
         const leftContainer = document.getElementById("left");
+        const rightContainer = document.getElementById("right");
         leftContainer.innerHTML = "";
+        rightContainer.innerHTML = "";
+
         if (Array.isArray(data.front_predictions) && data.front_predictions.length > 0) {
           data.front_predictions.forEach((value, i) => {
             const el = document.createElement("div");
@@ -60,12 +76,9 @@
             leftContainer.appendChild(el);
           });
         } else {
-          leftContainer.innerHTML = '<span class="error">❌ 오류</span>';
+          leftContainer.innerText = "❌ 오류";
         }
 
-        // 오른쪽(뒤방향)
-        const rightContainer = document.getElementById("right");
-        rightContainer.innerHTML = "";
         if (Array.isArray(data.back_predictions) && data.back_predictions.length > 0) {
           data.back_predictions.forEach((value, i) => {
             const el = document.createElement("div");
@@ -74,14 +87,14 @@
             rightContainer.appendChild(el);
           });
         } else {
-          rightContainer.innerHTML = '<span class="error">❌ 오류</span>';
+          rightContainer.innerText = "❌ 오류";
         }
 
       } catch (error) {
-        console.error("❌ 예측 데이터 로딩 실패:", error);
+        console.error("❌ 예측 결과 로드 실패:", error);
         document.getElementById("round").innerText = "예측 결과 로드 실패";
-        document.getElementById("left").innerHTML = '<span class="error">❌ 오류</span>';
-        document.getElementById("right").innerHTML = '<span class="error">❌ 오류</span>';
+        document.getElementById("left").innerText = "❌ 오류";
+        document.getElementById("right").innerText = "❌ 오류";
       }
     }
   </script>
