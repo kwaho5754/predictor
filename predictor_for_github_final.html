@@ -32,7 +32,8 @@
   <script>
     async function fetchPrediction() {
       try {
-        const response = await fetch("/predict");
+        // ⬇️ 여기 절대 URL로 수정됨
+        const response = await fetch("https://ladder-proxy-production.up.railway.app/predict");
         const data = await response.json();
 
         document.getElementById("round").innerText = `예측 회차: ${data.predict_round}회차`;
@@ -60,6 +61,7 @@
         document.getElementById("round").innerText = "❌ 예측 데이터 보기 오류";
         document.getElementById("left").innerText = "데이터 없음";
         document.getElementById("right").innerText = "데이터 없음";
+        console.error("예측 오류:", err);
       }
     }
   </script>
