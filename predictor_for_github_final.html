@@ -1,81 +1,49 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>🍑 예측 실행</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    .container { display: flex; justify-content: space-between; }
-    .column { width: 45%; }
-    .title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
-    .result { margin: 5px 0; }
-    .round { font-weight: bold; margin-top: 20px; }
-  </style>
-</head>
-<body>
-  <h1>🍑 예측 실행</h1>
-  <button onclick="fetchPrediction()">예측 실행</button>
+<script>
+  async function fetchPrediction() {
+    try {
+      const response = await fetch("https://ladder-proxy-production.up.railway.app/predict", {
+        headers: { 'Accept': 'application/json' }
+      });
 
-  <div class="round" id="round">🔁 예측 회차 없음</div>
-  <div class="container">
-    <div class="column">
-      <div class="title">앞 기준 (Top1~5)</div>
-      <div id="left">❌ 오류</div>
-    </div>
-    <div class="column">
-      <div class="title">뒤 기준 (Top6~10)</div>
-      <div id="right">❌ 오류</div>
-    </div>
-  </div>
+      const text = await response.text();
+      const data = JSON.parse(text);
+      console.log("✅ JSON 파싱 결과:", data);
 
-  <script>
-    async function fetchPrediction() {
-      try {
-        const response = await fetch("https://ladder-proxy-production.up.railway.app/predict", {
-          headers: { 'Accept': 'application/json' }
+      document.getElementById("round").innerText =
+        data["예측회차"] ? `🔁 예측 회차: ${data["예측회차"]}회차` : "❌ 예측 회차 없음";
+
+      const leftContainer = document.getElementById("left");
+      const rightContainer = document.getElementById("right");
+      leftContainer.innerHTML = "";
+      rightContainer.innerHTML = "";
+
+      if (Array.isArray(data["앞방향_예측값"]) && data["앞방향_예측값"].length > 0) {
+        data["앞방향_예측값"].forEach((value, i) => {
+          const el = document.createElement("div");
+          el.className = "result";
+          el.innerText = `${i + 1}위: ${value}`;
+          leftContainer.appendChild(el);
         });
-
-        const text = await response.text();
-        const data = JSON.parse(text);
-        console.log("✅ JSON 파싱 결과:", data);
-
-        document.getElementById("round").innerText =
-          data.predict_round ? `🔁 예측 회차: ${data.predict_round}회차` : "❌ 예측 회차 없음";
-
-        const leftContainer = document.getElementById("left");
-        const rightContainer = document.getElementById("right");
-        leftContainer.innerHTML = "";
-        rightContainer.innerHTML = "";
-
-        if (Array.isArray(data.front_predictions) && data.front_predictions.length > 0) {
-          data.front_predictions.forEach((value, i) => {
-            const el = document.createElement("div");
-            el.className = "result";
-            el.innerText = `${i + 1}위: ${value}`;
-            leftContainer.appendChild(el);
-          });
-        } else {
-          leftContainer.innerText = "❌ 데이터 없음";
-        }
-
-        if (Array.isArray(data.back_predictions) && data.back_predictions.length > 0) {
-          data.back_predictions.forEach((value, i) => {
-            const el = document.createElement("div");
-            el.className = "result";
-            el.innerText = `${i + 6}위: ${value}`;
-            rightContainer.appendChild(el);
-          });
-        } else {
-          rightContainer.innerText = "❌ 데이터 없음";
-        }
-
-      } catch (error) {
-        console.error("❌ 예측 불러오기 실패:", error);
-        document.getElementById("round").innerText = "❌ 예측 결과 로드 실패";
-        document.getElementById("left").innerText = "❌ 오류";
-        document.getElementById("right").innerText = "❌ 오류";
+      } else {
+        leftContainer.innerText = "❌ 데이터 없음";
       }
+
+      if (Array.isArray(data["뒤방향_예측값"]) && data["뒤방향_예측값"].length > 0) {
+        data["뒤방향_예측값"].forEach((value, i) => {
+          const el = document.createElement("div");
+          el.className = "result";
+          el.innerText = `${i + 6}위: ${value}`;
+          rightContainer.appendChild(el);
+        });
+      } else {
+        rightContainer.innerText = "❌ 데이터 없음";
+      }
+
+    } catch (error) {
+      console.error("❌ 예측 불러오기 실패:", error);
+      document.getElementById("round").innerText = "❌ 예측 결과 로드 실패";
+      document.getElementById("left").innerText = "❌ 오류";
+      document.getElementById("right").innerText = "❌ 오류";
     }
-  </script>
-</body>
-</html>
+  }
+</script>
