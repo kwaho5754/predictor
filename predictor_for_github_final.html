@@ -21,11 +21,11 @@
   <div class="container">
     <div class="column">
       <div class="title">앞 기준 (Top1~5)</div>
-      <div id="left"></div>
+      <div id="left">데이터 없음</div>
     </div>
     <div class="column">
       <div class="title">뒤 기준 (Top6~10)</div>
-      <div id="right"></div>
+      <div id="right">데이터 없음</div>
     </div>
   </div>
 
@@ -35,27 +35,41 @@
         const response = await fetch("https://ladder-proxy-production.up.railway.app/predict");
         const data = await response.json();
 
-        document.getElementById("round").innerText = `예측 회차: ${data.predict_round}회차`;
+        // 회차 표시
+        document.getElementById("round").innerText = data.predict_round
+          ? `예측 회차: ${data.predict_round}회차`
+          : "예측 회차 없음";
 
+        // 좌우 예측 영역
         const leftContainer = document.getElementById("left");
         const rightContainer = document.getElementById("right");
+
         leftContainer.innerHTML = "";
         rightContainer.innerHTML = "";
 
-        // ✅ 정확한 키 이름 적용
-        data.front_predictions.forEach((value, i) => {
-          const el = document.createElement("div");
-          el.className = "result";
-          el.innerText = `${i + 1}위: ${value}`;
-          leftContainer.appendChild(el);
-        });
+        // 앞 기준 출력
+        if (Array.isArray(data.front_predictions) && data.front_predictions.length > 0) {
+          data.front_predictions.forEach((value, i) => {
+            const el = document.createElement("div");
+            el.className = "result";
+            el.innerText = `${i + 1}위: ${value}`;
+            leftContainer.appendChild(el);
+          });
+        } else {
+          leftContainer.innerText = "데이터 없음";
+        }
 
-        data.back_predictions.forEach((value, i) => {
-          const el = document.createElement("div");
-          el.className = "result";
-          el.innerText = `${i + 6}위: ${value}`;
-          rightContainer.appendChild(el);
-        });
+        // 뒤 기준 출력
+        if (Array.isArray(data.back_predictions) && data.back_predictions.length > 0) {
+          data.back_predictions.forEach((value, i) => {
+            const el = document.createElement("div");
+            el.className = "result";
+            el.innerText = `${i + 6}위: ${value}`;
+            rightContainer.appendChild(el);
+          });
+        } else {
+          rightContainer.innerText = "데이터 없음";
+        }
 
       } catch (err) {
         document.getElementById("round").innerText = "❌ 예측 데이터 보기 오류";
